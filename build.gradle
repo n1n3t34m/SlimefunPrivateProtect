@@ -3,7 +3,7 @@ plugins {
 }
 
 group = 'org.nineteam'
-version = '1.0-SNAPSHOT'
+version = '2.0-SNAPSHOT'
 
 repositories {
     mavenCentral()
@@ -19,11 +19,14 @@ repositories {
         name = "jitpack"
         url = "https://jitpack.io"
     }
+    mavenLocal()
 }
 
 dependencies {
     compileOnly("io.papermc.paper:paper-api:1.19.4-R0.1-SNAPSHOT")
     compileOnly("com.github.Slimefun:Slimefun4:RC-37")
+    implementation("me.sfiguz7:TranscEndence:DevTest-33")
+    implementation("io.github.sefiraat.crystamaehistoria:CrystamaeHistoria:MODIFIED")
 }
 
 def targetJavaVersion = 21
