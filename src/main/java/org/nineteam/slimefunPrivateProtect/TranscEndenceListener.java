@@ -8,7 +8,7 @@ import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItem;
 import me.sfiguz7.transcendence.implementation.items.UnstableItem;
 
 public class TranscEndenceListener implements Listener {
-    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
     public void onPlayerDropItemEvent(PlayerDropItemEvent e) {
         // Prevent dropping unstable ingots
         if (SlimefunItem.getByItem(e.getItemDrop().getItemStack()) instanceof UnstableItem)

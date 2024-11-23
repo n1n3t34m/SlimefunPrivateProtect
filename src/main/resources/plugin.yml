@@ -8,3 +8,8 @@ description: Better protection on private territories
 softdepend:
   - TranscEndence
   - CrystamaeHistoria
+commands:
+  check:
+    permission: sfpp.check
+  stats:
+    permission: sfpp.stats
