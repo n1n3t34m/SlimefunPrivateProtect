@@ -14,6 +14,7 @@ public class CrystamaeHistoriaListener implements Listener {
     @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
     public void onEntityTeleportEvent(EntityTeleportEvent e) {
         // Prevent stealing items with displaced voids
+        // NOTE: Same principle as base Infused Magnet
         if(e.getEntity() instanceof Item) {
             for(Player p : Bukkit.getOnlinePlayers()) {
                 if(!p.getLocation().equals(e.getTo())) return;

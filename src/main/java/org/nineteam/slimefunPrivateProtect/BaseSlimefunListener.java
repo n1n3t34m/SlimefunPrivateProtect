@@ -23,6 +23,9 @@ public class BaseSlimefunListener implements Listener {
     @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
     public void onEntityTeleportEvent(EntityTeleportEvent e) {
         // Prevent stealing items with infused magnets
+        // NOTE: Player location and item teleport "to" location are the same when event triggers
+        //  this gives us a direct reference to player attempting to use magnet. Permissions checked
+        //  at the item "from" location in case stealing attempt is performed through chunks border
         if(e.getEntity() instanceof Item) {
             for(Player p : Bukkit.getOnlinePlayers()) {
                 if(!p.getLocation().equals(e.getTo())) return;
