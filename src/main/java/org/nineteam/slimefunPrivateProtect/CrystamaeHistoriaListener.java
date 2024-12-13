@@ -17,9 +17,11 @@ public class CrystamaeHistoriaListener implements Listener {
         // NOTE: Same principle as base Infused Magnet
         if(e.getEntity() instanceof Item) {
             for(Player p : Bukkit.getOnlinePlayers()) {
-                if(!p.getLocation().equals(e.getTo())) return;
-                if(SlimefunUtils.containsSimilarItem(p.getInventory(), CrystaStacks.DISPLACED_VOID, false))
+                if(SlimefunUtils.containsSimilarItem(p.getInventory(), CrystaStacks.DISPLACED_VOID, false)
+                        && p.getLocation().equals(e.getTo())) {
                     SlimefunPrivateProtect.check(e, p, e.getFrom());
+                    return;
+                }
             }
         }
     }

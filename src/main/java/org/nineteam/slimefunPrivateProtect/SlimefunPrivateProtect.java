@@ -1,7 +1,8 @@
 package org.nineteam.slimefunPrivateProtect;
 
-import net.kyori.adventure.text.ComponentBuilder;
+import org.bstats.bukkit.Metrics;
 import org.bukkit.Location;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.Bukkit;
 import org.bukkit.event.player.PlayerEvent;
@@ -11,12 +12,15 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.Command;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.ComponentBuilder;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import io.github.thebusybiscuit.slimefun4.api.SlimefunAddon;
 import io.github.thebusybiscuit.slimefun4.implementation.Slimefun;
 import io.github.thebusybiscuit.slimefun4.libraries.dough.protection.Interaction;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
+import java.util.logging.Logger;
 
 import static net.kyori.adventure.text.Component.text;
 import static net.kyori.adventure.text.format.NamedTextColor.GREEN;
@@ -27,10 +31,15 @@ public final class SlimefunPrivateProtect extends JavaPlugin implements Slimefun
             "<gray>[<green>SF</green><aqua>P</aqua><blue>P</blue>]</gray> "
     );
     static int counter = 0;
+    static Plugin instance;
+    static Logger logger;
 
     @Override
     public void onEnable() {
-        // TODO: bStats
+        instance = this;
+        logger = getLogger();
+
+        new Metrics(this, 24131);  // bStats
 
         Bukkit.getPluginManager().registerEvents(new BaseSlimefunListener(), this);
         Bukkit.getPluginManager().registerEvents(new MiscellaneousListener(), this);
@@ -45,17 +54,13 @@ public final class SlimefunPrivateProtect extends JavaPlugin implements Slimefun
         }
     }
 
-    @Override
-    public void onDisable() {
-    }
-
-    @Override
+	@Override
     public String getBugTrackerURL() {
         return null;
     }
 
     @Override
-    public JavaPlugin getJavaPlugin() {
+    public @NotNull JavaPlugin getJavaPlugin() {
         return this;
     }
 
@@ -81,8 +86,8 @@ public final class SlimefunPrivateProtect extends JavaPlugin implements Slimefun
                     }
 
                     p.sendMessage(msg.build());
-                    return true;
-                }
+                } else sender.sendMessage(prefix.append(text("Player required!")));
+                return true;
             case "stats":
                 sender.sendMessage(prefix.append(text("Prevented cases: " + counter)));
                 return true;
@@ -92,7 +97,7 @@ public final class SlimefunPrivateProtect extends JavaPlugin implements Slimefun
 
     public static void check(Cancellable e, Player p, Location l) {
         if(!Arrays.stream(Interaction.values()).allMatch(x -> Slimefun.getProtectionManager().hasPermission(p, l, x))) {
-            p.sendMessage(prefix.append(text("You aren't allowed to do that here!").color(RED)));
+            p.sendMessage(prefix.append(text("You aren't allowed to do that here!", RED)));
             e.setCancelled(true);
             counter++;
         }

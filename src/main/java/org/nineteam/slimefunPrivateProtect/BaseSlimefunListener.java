@@ -11,8 +11,17 @@ import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import io.github.thebusybiscuit.slimefun4.utils.SlimefunUtils;
 import io.github.thebusybiscuit.slimefun4.implementation.SlimefunItems;
+import org.bukkit.event.player.PlayerTeleportEvent;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+
+import static org.nineteam.slimefunPrivateProtect.SlimefunPrivateProtect.*;
 
 public class BaseSlimefunListener implements Listener {
+    private static final Map<UUID, Long> scrollUsed = new HashMap<>();
+
     @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
     public void onPlayerDropItemEvent(PlayerDropItemEvent e) {
         // Prevent dropping radioactive materials
@@ -28,20 +37,37 @@ public class BaseSlimefunListener implements Listener {
         //  at the item "from" location in case stealing attempt is performed through chunks border
         if(e.getEntity() instanceof Item) {
             for(Player p : Bukkit.getOnlinePlayers()) {
-                if(!p.getLocation().equals(e.getTo())) return;
-                if(SlimefunUtils.containsSimilarItem(p.getInventory(), SlimefunItems.INFUSED_MAGNET, false))
+                if(p.getLocation().equals(e.getTo())
+                        && SlimefunUtils.containsSimilarItem(p.getInventory(), SlimefunItems.INFUSED_MAGNET, false)) {
                     SlimefunPrivateProtect.check(e, p, e.getFrom());
+                    return;
+                }
             }
         }
     }
 
     @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
+    public void onPlayerTeleportEvent(PlayerTeleportEvent e) {
+        // Prevent trolling with scroll of dimensional teleposition
+        if(e.getTo().getYaw() - e.getFrom().getYaw() == 180F) {
+            for(Player p : e.getFrom().getNearbyPlayers(16D)) {
+                UUID id = p.getUniqueId();
+                if(!id.equals(e.getPlayer().getUniqueId())
+                        && scrollUsed.getOrDefault(id, -1L) == e.getFrom().getWorld().getTime()) {
+                    SlimefunPrivateProtect.check(e, p, e.getFrom());
+                    return;
+                }
+            }
+        }
+    }
+
+    @EventHandler(priority = EventPriority.LOWEST)
     public void onPlayerInteractEvent(PlayerInteractEvent e) {
-        // Prevent trolling with scroll on dimensional teleposition
-        // NOTE: This is a bit wonky because the scroll have quite some range
-        //  but checking EntityTeleportEvent is harder and may introduce even more ways of trolling
-        //  for example player just standing nearby holding the scroll may cancel other player teleportation
-        if(SlimefunUtils.isItemSimilar(e.getItem(), SlimefunItems.SCROLL_OF_DIMENSIONAL_TELEPOSITION, false))
-            SlimefunPrivateProtect.check(e);
+        // Maintain map of players who used scroll of dimensional teleposition
+        if(SlimefunUtils.isItemSimilar(e.getItem(), SlimefunItems.SCROLL_OF_DIMENSIONAL_TELEPOSITION, false)) {
+            UUID id = e.getPlayer().getUniqueId();
+            scrollUsed.put(id, e.getPlayer().getWorld().getTime());
+            Bukkit.getScheduler().runTaskLater(instance, () -> scrollUsed.remove(id), 2);
+        }
     }
 }

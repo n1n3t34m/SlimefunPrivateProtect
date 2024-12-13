@@ -1,9 +1,10 @@
 plugins {
     id 'java'
+    id 'com.gradleup.shadow' version '8.3.0'
 }
 
 group = 'org.nineteam'
-version = '3.0-SNAPSHOT'
+version = '4.0-SNAPSHOT'
 
 repositories {
     mavenCentral()
@@ -25,8 +26,19 @@ repositories {
 dependencies {
     compileOnly("io.papermc.paper:paper-api:1.19.4-R0.1-SNAPSHOT")
     compileOnly("com.github.Slimefun:Slimefun4:RC-37")
-    implementation("me.sfiguz7:TranscEndence:DevTest-33")
-    implementation("io.github.sefiraat.crystamaehistoria:CrystamaeHistoria:MODIFIED")
+    compileOnly("me.sfiguz7:TranscEndence:DevTest-33")
+    compileOnly("io.github.sefiraat.crystamaehistoria:CrystamaeHistoria:MODIFIED")
+    implementation("org.bstats:bstats-bukkit:3.0.2")
+}
+
+shadowJar {
+    relocate("org.bstats", "org.nineteam")
+}
+
+tasks {
+    build {
+        dependsOn(shadowJar)
+    }
 }
 
 def targetJavaVersion = 21
