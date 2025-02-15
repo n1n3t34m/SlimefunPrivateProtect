@@ -1,7 +1,7 @@
 name: SlimefunPrivateProtect
 version: ${version}
 main: org.nineteam.slimefunPrivateProtect.SlimefunPrivateProtect
-api-version: '1.19'
+api-version: '1.18'
 depend: [ Slimefun ]
 authors: [ Venom Lightning ]
 description: Better protection on private territories
