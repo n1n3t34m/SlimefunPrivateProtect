@@ -1,5 +1,7 @@
 package org.nineteam.slimefunPrivateProtect;
 
+import io.github.thebusybiscuit.slimefun4.libraries.dough.config.Config;
+import net.kyori.adventure.text.TextComponent;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Location;
 import org.bukkit.plugin.Plugin;
@@ -20,6 +22,7 @@ import io.github.thebusybiscuit.slimefun4.libraries.dough.protection.Interaction
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.logging.Logger;
 
 import static net.kyori.adventure.text.Component.text;
@@ -27,17 +30,16 @@ import static net.kyori.adventure.text.format.NamedTextColor.GREEN;
 import static net.kyori.adventure.text.format.NamedTextColor.RED;
 
 public final class SlimefunPrivateProtect extends JavaPlugin implements SlimefunAddon, CommandExecutor {
-    static final Component prefix = MiniMessage.miniMessage().deserialize(
-            "<gray>[<green>SF</green><aqua>P</aqua><blue>P</blue>]</gray> "
-    );
     static int counter = 0;
     static Plugin instance;
+    static Config config;
     static Logger logger;
 
     @Override
     public void onEnable() {
         instance = this;
-        logger = getLogger();
+        config = new Config(this);
+        logger = this.getLogger();
 
         new Metrics(this, 24131);  // bStats
 
@@ -56,7 +58,7 @@ public final class SlimefunPrivateProtect extends JavaPlugin implements Slimefun
 
 	@Override
     public String getBugTrackerURL() {
-        return null;
+        return "https://github.com/n1n3t34m/SlimefunPrivateProtect/issues";
     }
 
     @Override
@@ -69,7 +71,7 @@ public final class SlimefunPrivateProtect extends JavaPlugin implements Slimefun
         switch(command.getName()) {
             case "check":
                 if (sender instanceof Player p) {
-                    final ComponentBuilder msg = text();
+                    final ComponentBuilder<TextComponent, TextComponent.Builder> msg = text();
 
                     // Header
                     String info = String.format("%s @ %d, %d, %d:",
@@ -77,7 +79,7 @@ public final class SlimefunPrivateProtect extends JavaPlugin implements Slimefun
                             p.getLocation().getBlockX(),
                             p.getLocation().getBlockY(),
                             p.getLocation().getBlockZ());
-                    msg.append(prefix).append(text(info));
+                    msg.append(getPrefix()).append(text(info));
 
                     // Check permissions
                     for (Interaction i : Interaction.values()) {
@@ -86,18 +88,31 @@ public final class SlimefunPrivateProtect extends JavaPlugin implements Slimefun
                     }
 
                     p.sendMessage(msg.build());
-                } else sender.sendMessage(prefix.append(text("Player required!")));
+                } else sender.sendMessage(getPrefix().append(text("Player required!")));
                 return true;
             case "stats":
-                sender.sendMessage(prefix.append(text("Prevented cases: " + counter)));
+                sender.sendMessage(getPrefix().append(text("Prevented cases: " + counter)));
+                return true;
+            case "reload":
+                config.reload();
+                sender.sendMessage(getPrefix().append(text("Configuration reloaded!")));
                 return true;
         }
         return false;
     }
 
+    private static Component getPrefix() {
+        return MiniMessage.miniMessage().deserialize(
+                Objects.requireNonNullElse(config.getString("prefix"), ""));
+    }
+
     public static void check(Cancellable e, Player p, Location l) {
         if(!Arrays.stream(Interaction.values()).allMatch(x -> Slimefun.getProtectionManager().hasPermission(p, l, x))) {
-            p.sendMessage(prefix.append(text("You aren't allowed to do that here!", RED)));
+            if (config.getBoolean("inform-player")) {
+                Component msg = MiniMessage.miniMessage().deserialize(
+                        Objects.requireNonNullElse(config.getString("message"), ""));
+                p.sendMessage(getPrefix().append(msg));
+            }
             e.setCancelled(true);
             counter++;
         }

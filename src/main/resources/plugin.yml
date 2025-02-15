@@ -13,3 +13,5 @@ commands:
     permission: sfpp.check
   stats:
     permission: sfpp.stats
+  reload:
+    permission: sfpp.reload

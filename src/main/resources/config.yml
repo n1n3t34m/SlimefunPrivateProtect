@@ -1,0 +1,3 @@
+prefix: "<gray>[<green>SF</green><aqua>P</aqua><blue>P</blue>]</gray> "
+message: "<red>You aren't allowed to do that here!</red>"
+inform-player: true
