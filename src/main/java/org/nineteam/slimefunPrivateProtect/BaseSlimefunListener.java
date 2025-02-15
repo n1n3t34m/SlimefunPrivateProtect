@@ -13,14 +13,14 @@ import io.github.thebusybiscuit.slimefun4.utils.SlimefunUtils;
 import io.github.thebusybiscuit.slimefun4.implementation.SlimefunItems;
 import org.bukkit.event.player.PlayerTeleportEvent;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
+import java.util.Set;
+import java.util.HashSet;
 
 import static org.nineteam.slimefunPrivateProtect.SlimefunPrivateProtect.*;
 
 public class BaseSlimefunListener implements Listener {
-    private static final Map<UUID, Long> scrollUsed = new HashMap<>();
+    private final Set<UUID> playerUsedScroll = new HashSet<>();
 
     @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
     public void onPlayerDropItemEvent(PlayerDropItemEvent e) {
@@ -52,8 +52,8 @@ public class BaseSlimefunListener implements Listener {
         if(e.getTo().getYaw() - e.getFrom().getYaw() == 180F) {
             for(Player p : e.getFrom().getNearbyPlayers(16D)) {
                 UUID id = p.getUniqueId();
-                if(!id.equals(e.getPlayer().getUniqueId())
-                        && scrollUsed.getOrDefault(id, -1L) == e.getFrom().getWorld().getTime()) {
+                if(id != e.getPlayer().getUniqueId()
+                        && playerUsedScroll.contains(id)) {
                     SlimefunPrivateProtect.check(e, p, e.getFrom());
                     return;
                 }
@@ -66,8 +66,8 @@ public class BaseSlimefunListener implements Listener {
         // Maintain map of players who used scroll of dimensional teleposition
         if(SlimefunUtils.isItemSimilar(e.getItem(), SlimefunItems.SCROLL_OF_DIMENSIONAL_TELEPOSITION, false)) {
             UUID id = e.getPlayer().getUniqueId();
-            scrollUsed.put(id, e.getPlayer().getWorld().getTime());
-            Bukkit.getScheduler().runTaskLater(instance, () -> scrollUsed.remove(id), 2);
+            playerUsedScroll.add(id);
+            Bukkit.getScheduler().runTaskLater(instance, () -> playerUsedScroll.remove(id), 1);
         }
     }
 }
