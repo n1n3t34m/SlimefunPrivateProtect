@@ -16,5 +16,5 @@ Commands:
 Shows permissions for all interactions on current position
 - `/slimefunprivateprotect:stats` (permission: `sfpp.stats`)\
 Shows number of prevented cases just for fun :)
-- `/slimefunprivateprotect:reload (permission: sfpp.reload)`
+- `/slimefunprivateprotect:reload (permission: sfpp.reload)`\
 Reload configuration and customizable messages
