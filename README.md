@@ -13,6 +13,8 @@ Addons support:
 
 Commands:
 - `/slimefunprivateprotect:check` (permission: `sfpp.check`)\
-Shows permissions for all interactions in current chunk
+Shows permissions for all interactions on current position
 - `/slimefunprivateprotect:stats` (permission: `sfpp.stats`)\
 Shows number of prevented cases just for fun :)
+- `/slimefunprivateprotect:reload (permission: sfpp.reload)`
+Reload configuration and customizable messages
