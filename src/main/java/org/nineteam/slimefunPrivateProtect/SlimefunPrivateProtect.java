@@ -1,9 +1,17 @@
 package org.nineteam.slimefunPrivateProtect;
 
+import io.github.thebusybiscuit.slimefun4.api.items.ItemGroup;
+import io.github.thebusybiscuit.slimefun4.api.items.SlimefunItemStack;
+import io.github.thebusybiscuit.slimefun4.api.recipes.RecipeType;
+import io.github.thebusybiscuit.slimefun4.implementation.SlimefunItems;
 import io.github.thebusybiscuit.slimefun4.libraries.dough.config.Config;
+import io.github.thebusybiscuit.slimefun4.libraries.dough.items.CustomItemStack;
 import net.kyori.adventure.text.TextComponent;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.Bukkit;
@@ -20,9 +28,13 @@ import io.github.thebusybiscuit.slimefun4.api.SlimefunAddon;
 import io.github.thebusybiscuit.slimefun4.implementation.Slimefun;
 import io.github.thebusybiscuit.slimefun4.libraries.dough.protection.Interaction;
 import org.jetbrains.annotations.NotNull;
+import org.nineteam.slimefunPrivateProtect.items.FireExtinguisher;
+import org.nineteam.slimefunPrivateProtect.items.PickaxeOfDemolition;
+import org.nineteam.slimefunPrivateProtect.listeners.*;
 
 import java.util.Arrays;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.logging.Logger;
 
 import static net.kyori.adventure.text.Component.text;
@@ -30,10 +42,11 @@ import static net.kyori.adventure.text.format.NamedTextColor.GREEN;
 import static net.kyori.adventure.text.format.NamedTextColor.RED;
 
 public final class SlimefunPrivateProtect extends JavaPlugin implements SlimefunAddon, CommandExecutor {
-    static int counter = 0;
-    static Plugin instance;
-    static Config config;
-    static Logger logger;
+    private static int counter = 0;
+
+    public static Plugin instance;
+    public static Config config;
+    public static Logger logger;
 
     @Override
     public void onEnable() {
@@ -43,9 +56,11 @@ public final class SlimefunPrivateProtect extends JavaPlugin implements Slimefun
 
         new Metrics(this, 24131);  // bStats
 
+        // Listeners
         Bukkit.getPluginManager().registerEvents(new BaseSlimefunListener(), this);
         Bukkit.getPluginManager().registerEvents(new MiscellaneousListener(), this);
 
+        // Addons support
         if(Bukkit.getPluginManager().isPluginEnabled("TranscEndence")) {
             Bukkit.getPluginManager().registerEvents(new TranscEndenceListener(), this);
             getLogger().info("TranscEndence guard enabled!");
@@ -53,6 +68,41 @@ public final class SlimefunPrivateProtect extends JavaPlugin implements Slimefun
         if(Bukkit.getPluginManager().isPluginEnabled("CrystamaeHistoria")) {
             Bukkit.getPluginManager().registerEvents(new CrystamaeHistoriaListener(), this);
             getLogger().info("CrystamaeHistoria guard enabled!");
+        }
+
+        // Optional items
+        if (config.getBoolean("enable-items")) {
+            // Groups
+            final ItemGroup mainGroup = new ItemGroup(
+                    new NamespacedKey(this, "clearing_tools"),
+                    new CustomItemStack(Material.BRUSH, "&4Clearing tools", "", "&a> Click to open")
+            );
+
+            // Items
+            final SlimefunItemStack SFPP_PICKAXE_OF_DEMOLITION = new SlimefunItemStack(
+                    "SFPP_PICKAXE_OF_DEMOLITION",
+                    Material.STONE_PICKAXE,
+                    "&ePickaxe of Demolition",
+                    "", "&fDestroys huge chunks of cobblestone", "&fand related adjacent materials such as", "&fstone, obsidian, lava and water sources", "", "&rPerfect against lavacasts"
+            );
+            final SlimefunItemStack SFPP_FIRE_EXTINGUISHER = new SlimefunItemStack(
+                    "SFPP_FIRE_EXTINGUISHER",
+                    Material.POWDER_SNOW_BUCKET,
+                    "&bFire Extinguisher",
+                    "", "&fPuts out a fire over a large area", "", "&rSkips campfires, candles", "&rand eternal fires"
+            );
+
+            // Register
+            new PickaxeOfDemolition(mainGroup, SFPP_PICKAXE_OF_DEMOLITION, RecipeType.MAGIC_WORKBENCH, new ItemStack[]{
+                    SlimefunItems.EXPLOSIVE_PICKAXE, new ItemStack(Material.OBSIDIAN), SlimefunItems.PICKAXE_OF_VEIN_MINING,
+                    new ItemStack(Material.LAVA_BUCKET), new ItemStack(Material.STONE), new ItemStack(Material.WATER_BUCKET),
+                    null, new ItemStack(Material.COBBLESTONE), null
+            }).register(this);
+            new FireExtinguisher(mainGroup, SFPP_FIRE_EXTINGUISHER, RecipeType.ENHANCED_CRAFTING_TABLE, new ItemStack[]{
+                    null, new ItemStack(Material.IRON_INGOT), null,
+                    SlimefunItems.STEEL_PLATE, new ItemStack(Material.POWDER_SNOW_BUCKET), SlimefunItems.STEEL_PLATE,
+                    new ItemStack(Material.RED_DYE), SlimefunItems.STEEL_PLATE, new ItemStack(Material.RED_DYE)
+            }).register(this);
         }
     }
 
@@ -107,6 +157,7 @@ public final class SlimefunPrivateProtect extends JavaPlugin implements Slimefun
     }
 
     public static void check(Cancellable e, Player p, Location l) {
+        // TODO: Checking all interaction permissions may be an overkill
         if(!Arrays.stream(Interaction.values()).allMatch(x -> Slimefun.getProtectionManager().hasPermission(p, l, x))) {
             if (config.getBoolean("inform-player")) {
                 Component msg = MiniMessage.miniMessage().deserialize(

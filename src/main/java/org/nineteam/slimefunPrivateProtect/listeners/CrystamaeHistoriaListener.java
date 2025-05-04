@@ -1,4 +1,4 @@
-package org.nineteam.slimefunPrivateProtect;
+package org.nineteam.slimefunPrivateProtect.listeners;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Item;
@@ -9,6 +9,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityTeleportEvent;
 import io.github.thebusybiscuit.slimefun4.utils.SlimefunUtils;
 import io.github.sefiraat.crystamaehistoria.slimefun.CrystaStacks;
+import org.nineteam.slimefunPrivateProtect.SlimefunPrivateProtect;
 
 public class CrystamaeHistoriaListener implements Listener {
     @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)

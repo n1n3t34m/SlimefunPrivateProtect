@@ -1,9 +1,10 @@
-package org.nineteam.slimefunPrivateProtect;
+package org.nineteam.slimefunPrivateProtect.listeners;
 
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerFishEvent;
+import org.nineteam.slimefunPrivateProtect.SlimefunPrivateProtect;
 
 public class MiscellaneousListener implements Listener {
 	@EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)

@@ -1,4 +1,4 @@
-package org.nineteam.slimefunPrivateProtect;
+package org.nineteam.slimefunPrivateProtect.listeners;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Item;
@@ -12,6 +12,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import io.github.thebusybiscuit.slimefun4.utils.SlimefunUtils;
 import io.github.thebusybiscuit.slimefun4.implementation.SlimefunItems;
 import org.bukkit.event.player.PlayerTeleportEvent;
+import org.nineteam.slimefunPrivateProtect.SlimefunPrivateProtect;
 
 import java.util.UUID;
 import java.util.Set;
@@ -37,8 +38,7 @@ public class BaseSlimefunListener implements Listener {
         //  at the item "from" location in case stealing attempt is performed through chunks border
         if(e.getEntity() instanceof Item) {
             for(Player p : Bukkit.getOnlinePlayers()) {
-                if(p.getLocation().equals(e.getTo())
-                        && SlimefunUtils.containsSimilarItem(p.getInventory(), SlimefunItems.INFUSED_MAGNET, false)) {
+                if(p.getLocation().equals(e.getTo()) && SlimefunUtils.containsSimilarItem(p.getInventory(), SlimefunItems.INFUSED_MAGNET, false)) {
                     SlimefunPrivateProtect.check(e, p, e.getFrom());
                     return;
                 }
